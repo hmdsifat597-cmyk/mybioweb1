@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SIFAT AHMAD · CYBER EDGE</title>
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Three.js for background -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0b0e14;
+      color: #edf2f7;
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+      line-height: 1.5;
+    }
+
+    /* Canvas layers */
+    #bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -2;
+      pointer-events: none;
+      opacity: 0.4;
+    }
+
+    #lightning-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.6;
+    }
+
+    /* Main scroll container */
+    .wrapper {
+      height: 100vh;
+      overflow-y: auto;
+      padding: 1.8rem 1.5rem 2.5rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      scrollbar-width: thin;
+      scrollbar-color: #2dd4bf #1a1f2c;
+      position: relative;
+      z-index: 10;
+    }
+
+    .wrapper::-webkit-scrollbar {
+      width: 5px;
+    }
+    .wrapper::-webkit-scrollbar-track {
+      background: #1a1f2c;
+    }
+    .wrapper::-webkit-scrollbar-thumb {
+      background: #2dd4bf;
+      border-radius: 20px;
+    }
+
+    /* Glitch title – enhanced */
+    .glitch-wrapper {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .glitch {
+      font-size: 3.2rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      position: relative;
+      color: #f0f0f0;
+      text-shadow: 0.05em 0 0 #ff3b6f, -0.05em -0.025em 0 #2dd4bf;
+      animation: glitch 800ms infinite;
+      letter-spacing: 3px;
+    }
+
+    @keyframes glitch {
+      0% { transform: skew(0deg, 0deg); }
+      2% { transform: skew(1.5deg, 0.8deg); }
+      4% { transform: skew(-1.5deg, -0.8deg); }
+      6% { transform: skew(0deg, 0deg); }
+    }
+
+    .subhead {
+      font-size: 0.9rem;
+      font-family: 'Space Mono', monospace;
+      color: #9aa9b9;
+      border-bottom: 1px solid #2a3240;
+      padding-bottom: 0.8rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Profile card – sleek glass */
+    .profile-row {
+      display: flex;
+      align-items: center;
+      gap: 1.8rem;
+      background: rgba(18, 28, 36, 0.35);
+      backdrop-filter: blur(12px);
+      border-radius: 60px;
+      padding: 1.2rem 2rem;
+      border: 1px solid rgba(45, 212, 191, 0.25);
+      box-shadow: 0 20px 40px -20px #00000080;
+      margin-bottom: 2rem;
+    }
+
+    .profile-img-wrapper {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      flex-shrink: 0;
+    }
+
+    .profile-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 3px solid #2dd4bf;
+      box-shadow: 0 0 25px #2dd4bf;
+    }
+
+    .ring {
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      right: -10px;
+      bottom: -10px;
+      border: 2px dashed #2dd4bf;
+      border-radius: 50%;
+      animation: rotate 16s linear infinite;
+      opacity: 0.7;
+    }
+
+    .ring-inner {
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      right: -5px;
+      bottom: -5px;
+      border: 2px solid transparent;
+      border-top: 3px solid #ff3b6f;
+      border-bottom: 3px solid #2dd4bf;
+      border-radius: 50%;
+      animation: rotate 10s linear infinite reverse;
+    }
+
+    @keyframes rotate { to { transform: rotate(360deg); } }
+
+    .profile-info h1 {
+      font-size: 1.9rem;
+      background: linear-gradient(135deg, #fff, #b0c4de);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .profile-info .title {
+      font-size: 0.8rem;
+      color: #2dd4bf;
+      font-family: 'Space Mono', monospace;
+    }
+
+    /* Tags */
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin: 1.5rem 0 1.2rem;
+    }
+
+    .tag {
+      background: rgba(45, 212, 191, 0.08);
+      border: 1px solid rgba(45, 212, 191, 0.3);
+      padding: 0.3rem 1.2rem;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #2dd4bf;
+    }
+
+    /* Stats – minimal */
+    .stats-row {
+      display: flex;
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .stat-card {
+      flex: 1;
+      background: rgba(0, 20, 25, 0.4);
+      backdrop-filter: blur(6px);
+      border: 1px solid #2a4050;
+      border-radius: 28px;
+      padding: 1rem 0.2rem;
+      text-align: center;
+      border-top: 3px solid #2dd4bf;
+    }
+
+    .stat-card .value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #2dd4bf;
+      font-family: 'Space Mono', monospace;
+    }
+
+    .stat-card .label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      color: #9aa9b9;
+      letter-spacing: 1.5px;
+    }
+
+    /* Section headings */
+    h2 {
+      font-size: 1.3rem;
+      margin: 2rem 0 1rem;
+      border-left: 5px solid #ff3b6f;
+      padding-left: 1rem;
+      background: linear-gradient(90deg, rgba(45,212,191,0.1), transparent);
+      color: #f0f4fa;
+    }
+
+    /* Skill bars */
+    .skill-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .skill-name {
+      width: 110px;
+      font-size: 0.85rem;
+      color: #cbd5e1;
+    }
+
+    .skill-bar {
+      flex: 1;
+      height: 10px;
+      background: #1e2a32;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .skill-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #2dd4bf, #ff3b6f);
+      border-radius: 12px;
+      box-shadow: 0 0 10px #2dd4bf;
+      transition: width 1s ease;
+    }
+
+    /* Project cards */
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .project-card {
+      background: rgba(18, 30, 34, 0.5);
+      backdrop-filter: blur(8px);
+      border: 1px solid #2a4a4a;
+      border-radius: 32px;
+      padding: 1.5rem;
+      transition: all 0.25s;
+      border-left: 5px solid #2dd4bf;
+    }
+
+    .project-card:hover {
+      background: rgba(30, 50, 50, 0.7);
+      border-color: #ff3b6f;
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px -10px #2dd4bf;
+    }
+
+    .project-icon {
+      font-size: 2rem;
+      color: #2dd4bf;
+      margin-bottom: 0.8rem;
+    }
+
+    .project-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .project-card p {
+      font-size: 0.75rem;
+      color: #a0b0b0;
+      margin-bottom: 1rem;
+    }
+
+    .project-link {
+      font-size: 0.75rem;
+      color: #ff3b6f;
+      text-decoration: none;
+      font-family: 'Space Mono', monospace;
+    }
+
+    /* Terminal */
+    .terminal {
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+      border: 1px solid #2a4a4a;
+      border-radius: 32px;
+      padding: 1.3rem;
+      margin: 2rem 0;
+      font-family: 'Space Mono', monospace;
+    }
+
+    .terminal-header {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .terminal-header span {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #ff5f56;
+    }
+    .terminal-header span:nth-child(2) { background: #ffbd2e; }
+    .terminal-header span:nth-child(3) { background: #27c93f; }
+
+    .terminal-body {
+      color: #b0e0b0;
+      font-size: 0.8rem;
+      line-height: 2;
+    }
+
+    .prompt {
+      color: #2dd4bf;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+
+    .cursor {
+      background: #2dd4bf;
+      display: inline-block;
+      width: 8px;
+      height: 1rem;
+      vertical-align: middle;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* Contact buttons */
+    .contact-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin: 1.5rem 0 2rem;
+    }
+
+    .contact-btn {
+      background: rgba(0, 30, 30, 0.4);
+      backdrop-filter: blur(5px);
+      border: 1px solid #2a5a5a;
+      border-radius: 50px;
+      padding: 0.6rem 1.5rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: #edf2f7;
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: 0.2s;
+    }
+
+    .contact-btn i {
+      color: #2dd4bf;
+      font-size: 1rem;
+    }
+
+    .contact-btn:hover {
+      background: rgba(45, 212, 191, 0.15);
+      border-color: #2dd4bf;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 18px -8px #2dd4bf;
+    }
+
+    .contact-btn.special i {
+      color: #ff3b6f;
+    }
+
+    /* Bangla quote */
+    .quote {
+      text-align: center;
+      font-size: 1rem;
+      color: #ff3b6f;
+      text-shadow: 0 0 8px #ff3b6f80;
+      border-top: 1px solid #2a3a3a;
+      padding-top: 1.2rem;
+      margin-top: 1.5rem;
+      font-family: 'Space Mono', monospace;
+    }
+
+    .footer {
+      text-align: center;
+      color: #5a6a7a;
+      font-size: 0.7rem;
+      margin-top: 2rem;
+    }
+
+    /* Music toggle – subtle */
+    #music-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #111e24;
+      border: 2px solid #2dd4bf;
+      color: #2dd4bf;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 0 20px #2dd4bf;
+      transition: 0.2s;
+    }
+
+    #music-toggle:hover {
+      background: #2dd4bf;
+      color: #0b0e14;
+      border-color: white;
+    }
+
+    #bg-music { display: none; }
+  </style>
+</head>
+<body>
+
+  <!-- Canvases -->
+  <canvas id="bg-canvas"></canvas>
+  <canvas id="lightning-canvas"></canvas>
+
+  <!-- Audio with autoplay attempt (will be triggered by user click) -->
+  <audio id="bg-music" loop> <source src="https://files.catbox.moe/yntqbm.m4a" type="audio/mpeg"> </audio>
+  <div id="music-toggle"><i class="fas fa-play"></i></div>
+
+  <div class="wrapper">
+    <!-- Glitch Title -->
+    <div class="glitch-wrapper">
+      <div class="glitch">SIFAT AHMAD</div>
+      <div class="subhead">CYBER SECURITY · DARK WEB · TOOLCRAFT</div>
+    </div>
+
+    <!-- Profile with rings -->
+    <div class="profile-row">
+      <div class="profile-img-wrapper">
+        <img src="https://i.ibb.co/GvD3H5hw/488c80ea0ce1ec7f22cd9941d860d3e0.webp" alt="SIFAT" class="profile-img">
+        <div class="ring"></div>
+        <div class="ring-inner"></div>
+      </div>
+      <div class="profile-info">
+        <h1>SIFAT AHMAD</h1>
+        <div class="title">architect · researcher · developer</div>
+      </div>
+    </div>
+
+    <!-- Tags -->
+    <div class="tag-list">
+      <span class="tag">Termux</span>
+      <span class="tag">Kali Linux</span>
+      <span class="tag">Dark Web</span>
+      <span class="tag">OSINT</span>
+      <span class="tag">Bot Dev</span>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card"><div class="value" id="projects-count">47</div><div class="label">projects</div></div>
+      <div class="stat-card"><div class="value" id="coffee-count">1.3k</div><div class="label">coffees</div></div>
+      <div class="stat-card"><div class="value" id="years-count">12</div><div class="label">years</div></div>
+    </div>
+
+    <!-- Expertise -->
+    <h2>expertise</h2>
+    <div class="skill-item">
+      <span class="skill-name">Cyber Security</span>
+      <div class="skill-bar"><div class="skill-fill" style="width:90%"></div></div>
+    </div>
+    <div class="skill-item">
+      <span class="skill-name">Dark Web</span>
+      <div class="skill-bar"><div class="skill-fill" style="width:95%"></div></div>
+    </div>
+    <div class="skill-item">
+      <span class="skill-name">Termux</span>
+      <div class="skill-bar"><div class="skill-fill" style="width:88%"></div></div>
+    </div>
+    <div class="skill-item">
+      <span class="skill-name">Kali Linux</span>
+      <div class="skill-bar"><div class="skill-fill" style="width:85%"></div></div>
+    </div>
+
+    <!-- Operations -->
+    <h2>operations</h2>
+    <div class="project-grid">
+      <div class="project-card">
+        <div class="project-icon"><i class="fas fa-skull"></i></div>
+        <h3>P5S Toolbot</h3>
+        <p>Telegram automation & OSINT</p>
+        <a href="#" class="project-link">access →</a>
+      </div>
+      <div class="project-card">
+        <div class="project-icon"><i class="fas fa-satellite-dish"></i></div>
+        <h3>Deep Scan</h3>
+        <p>.onion crawler & vuln scan</p>
+        <a href="#" class="project-link">scan →</a>
+      </div>
+      <div class="project-card">
+        <div class="project-icon"><i class="fas fa-bolt"></i></div>
+        <h3>Cyber Dash</h3>
+        <p>threat intel dashboard</p>
+        <a href="#" class="project-link">launch →</a>
+      </div>
+    </div>
+
+    <!-- Terminal -->
+    <h2>live session</h2>
+    <div class="terminal">
+      <div class="terminal-header">
+        <span></span><span></span><span></span>
+      </div>
+      <div class="terminal-body" id="terminal-body">
+        <div><span class="prompt">$</span> ./profile --verbose</div>
+        <div><span class="prompt">></span> Loading system data...</div>
+        <div><span class="prompt">></span> User: SIFAT AHMAD</div>
+        <div><span class="prompt">></span> Status: <span style="color:#2dd4bf;">ACTIVE</span></div>
+        <div><span class="prompt">$</span> <span class="cursor"></span></div>
+      </div>
+    </div>
+
+    <!-- Connect -->
+    <h2>connect</h2>
+    <div class="contact-row">
+      <a href="https://t.me/sifat597" class="contact-btn"><i class="fab fa-telegram"></i> Telegram</a>
+      <a href="https://t.me/+j_jgdh3ETB5jMGRl" class="contact-btn"><i class="fas fa-satellite"></i> Channel</a>
+      <a href="https://www.facebook.com/hmdsifatahmad" class="contact-btn"><i class="fab fa-facebook"></i> FB</a>
+      <a href="https://t.me/P5STOOLS_bot" class="contact-btn special"><i class="fas fa-skull"></i> Bot</a>
+    </div>
+
+    <!-- Bangla Quote -->
+    <div class="quote">
+      হ্যাকিং কোন অপরাধ নয়, হ্যাকিং একটি শিল্প, আমি সেই শিল্পের কারিগর
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      SIFAT AHMAD · 2026 · encrypted
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // ----- Three.js background (particles with color) -----
+      const canvas = document.getElementById('bg-canvas');
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      const particlesGeo = new THREE.BufferGeometry();
+      const particlesCount = 900;
+      const posArray = new Float32Array(particlesCount * 3);
+      const colorArray = new Float32Array(particlesCount * 3);
+
+      for (let i = 0; i < particlesCount * 3; i += 3) {
+        const r = 8 + Math.random() * 5;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        posArray[i] = Math.sin(phi) * Math.cos(theta) * r;
+        posArray[i+1] = Math.sin(phi) * Math.sin(theta) * r;
+        posArray[i+2] = Math.cos(phi) * r;
+
+        const color = new THREE.Color().setHSL(0.38 + Math.random()*0.2, 0.9, 0.55);
+        colorArray[i] = color.r;
+        colorArray[i+1] = color.g;
+        colorArray[i+2] = color.b;
+      }
+
+      particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+      particlesGeo.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
+
+      const particlesMat = new THREE.PointsMaterial({
+        size: 0.08,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.6,
+        blending: THREE.AdditiveBlending
+      });
+      const particles = new THREE.Points(particlesGeo, particlesMat);
+      scene.add(particles);
+      camera.position.z = 14;
+
+      function animateParticles() {
+        requestAnimationFrame(animateParticles);
+        particles.rotation.y += 0.0002;
+        particles.rotation.x += 0.0001;
+        renderer.render(scene, camera);
+      }
+      animateParticles();
+
+      window.addEventListener('resize', () => {
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+      });
+
+      // ----- Lightning effect (colors) -----
+      const lCanvas = document.getElementById('lightning-canvas');
+      const lCtx = lCanvas.getContext('2d');
+      function resizeLightning() {
+        lCanvas.width = window.innerWidth;
+        lCanvas.height = window.innerHeight;
+      }
+      resizeLightning();
+      window.addEventListener('resize', resizeLightning);
+
+      function createLightning(x, y) {
+        lCtx.clearRect(0, 0, lCanvas.width, lCanvas.height);
+        for (let s = 0; s < 6; s++) {
+          lCtx.beginPath();
+          lCtx.strokeStyle = s % 2 === 0 ? '#2dd4bf' : '#ff3b6f';
+          lCtx.lineWidth = s < 3 ? 2.5 : 1.2;
+          lCtx.shadowBlur = 25;
+          lCtx.shadowColor = '#2dd4bf';
+          let curX = x + (Math.random() - 0.5) * 50;
+          let curY = y + (Math.random() - 0.5) * 50;
+          lCtx.moveTo(curX, curY);
+          for (let j = 0; j < 12; j++) {
+            curX += (Math.random() - 0.5) * 90;
+            curY += (Math.random() - 0.5) * 70;
+            lCtx.lineTo(curX, curY);
+          }
+          lCtx.stroke();
+        }
+        setTimeout(() => lCtx.clearRect(0, 0, lCanvas.width, lCanvas.height), 150);
+      }
+
+      window.addEventListener('mousedown', (e) => createLightning(e.clientX, e.clientY));
+      window.addEventListener('touchstart', (e) => createLightning(e.touches[0].clientX, e.touches[0].clientY));
+
+      // ----- Music toggle (fixed) -----
+      const music = document.getElementById('bg-music');
+      const toggle = document.getElementById('music-toggle');
+      let playing = false;
+
+      // Try to play on any user interaction (click on page)
+      function enableAudio() {
+        if (!playing) {
+          music.play().catch(() => {}); // silent catch if autoplay blocked
+          playing = true;
+          toggle.innerHTML = '<i class="fas fa-pause"></i>';
+        }
+      }
+
+      toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (playing) {
+          music.pause();
+          toggle.innerHTML = '<i class="fas fa-play"></i>';
+        } else {
+          music.play().catch(() => {});
+          toggle.innerHTML = '<i class="fas fa-pause"></i>';
+        }
+        playing = !playing;
+      });
+
+      // Also try on first body click (if user clicks anywhere)
+      document.body.addEventListener('click', function once() {
+        if (!playing) {
+          music.play().catch(() => {});
+          playing = true;
+          toggle.innerHTML = '<i class="fas fa-pause"></i>';
+        }
+      }, { once: true });
+
+      // ----- Counter animation -----
+      function animateValue(el, target) {
+        let current = 0;
+        const step = target / 40;
+        const timer = setInterval(() => {
+          current += step;
+          if (current >= target) {
+            el.textContent = target;
+            clearInterval(timer);
+          } else {
+            el.textContent = Math.floor(current);
+          }
+        }, 20);
+      }
+      animateValue(document.getElementById('projects-count'), 47);
+      animateValue(document.getElementById('coffee-count'), 1337);
+      animateValue(document.getElementById('years-count'), 12);
+
+      // ----- Terminal typing effect -----
+      const terminalBody = document.getElementById('terminal-body');
+      const extraLines = [
+        '> Encryption: AES-256',
+        '> Session: secure'
+      ];
+      let idx = 0;
+      function addTerminalLine() {
+        if (idx < extraLines.length) {
+          const line = document.createElement('div');
+          line.innerHTML = `<span class="prompt">></span> ${extraLines[idx]}`;
+          terminalBody.insertBefore(line, terminalBody.lastElementChild);
+          idx++;
+          setTimeout(addTerminalLine, 1400);
+        }
+      }
+      setTimeout(addTerminalLine, 2000);
+    })();
+  </script>
+</body>
+</html>
